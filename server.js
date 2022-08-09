@@ -32,6 +32,7 @@ server.use(passport.session());
 // ================== Routes ===========================================================
 
 server.use("/users", require("./api/users"));
+server.use("/admins", require("./api/admins"));
 // ================== Launch Server =======================================================
 server.use(express.static(path.join(__dirname, "public")));
 server.use("/", indexRouter);
