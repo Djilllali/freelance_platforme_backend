@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-
+const mailController = require("../controllers/mailer");
 // const VerificationDocument = require("../models/verificationDocument");
 
 const passport = require("passport");
@@ -184,6 +184,16 @@ router.get(
     }
   }
 );
+router.post("/sendMail", async (req, res) => {
+  mailController.sendMail(
+    "Turing LTD",
+    "zr.djillali@gmail.com",
+    "Confirmation email",
+    "This is your code "
+  );
+
+  res.send("sent succesfully");
+});
 router.post(
   "/edit_profile",
   passport.authenticate("jwt", { session: false }),
