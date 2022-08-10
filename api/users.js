@@ -162,5 +162,68 @@ router.get(
     }
   }
 );
+router.get(
+  "/get_profile",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    if (req.user) {
+      let mUser = await User.findById(
+        req.user._id,
+        "name phone email licenses"
+      );
+      if (!mUser) {
+        return res
+          .status(400)
+          .json({ status: "false", message: " Error ! could not get user" });
+      }
+      return res.json({
+        status: "true",
+        message: "profile fetched successfully",
+        data: mUser,
+      });
+    }
+  }
+);
+router.post(
+  "/edit_profile",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const schema = Joi.object({
+      bio: Joi.string().min(6).max(100),
+      name: Joi.string().min(3).max(20),
+    });
+    const options = {
+      abortEarly: true, // include all errors
+      allowUnknown: true, // ignore unknown props
+      stripUnknown: true, // remove unknown props
+    };
+    const { error, value } = schema.validate(req.body, options);
+    if (error) {
+      return res
+        .status(400)
+        .json({ status: "false", message: error.details[0].message });
+    } else {
+      req.body = value;
+    }
+    if (req.user) {
+      User.findOneAndUpdate(
+        { _id: req.user._id },
+        { ...req.body },
+        (error, doc) => {
+          if (error) {
+            return res.status(400).json({
+              status: "false",
+              message: " Error ! could not update profile",
+            });
+          }
+          return res.json({
+            status: "true",
+            message: "profile updated successfully",
+          });
+        }
+      );
+    }
+  }
+);
 
 module.exports = router;
