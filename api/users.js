@@ -4,6 +4,7 @@ const router = express.Router();
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const mailController = require("../controllers/mailer");
+const bcrypt = require("bcrypt");
 // const VerificationDocument = require("../models/verificationDocument");
 
 const passport = require("passport");
@@ -235,5 +236,57 @@ router.post(
     }
   }
 );
+router.post(
+  "/update_password",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res, next) => {
+    let oldpass = req.body.oldpass;
+    let newpass = req.body.newpass;
+    let newpass1 = req.body.newpass1;
+    const schema = Joi.object({
+      oldpass: Joi.string().min(6).max(30).required(),
+      newpass1: Joi.string().min(6).max(30).required(),
+    });
+    const options = {
+      abortEarly: true, // include all errors
+      allowUnknown: true, // ignore unknown props
+      stripUnknown: true, // remove unknown props
+    };
+    const { error, value } = schema.validate(req.body, options);
+    if (error) {
+      return res
+        .status(400)
+        .json({ status: "false", message: error.details[0].message });
+    } else {
+      req.body = value;
+    }
+    if (newpass !== newpass1)
+      return res.status(400).json({ error: "Passwords are not identical" });
+    let user = await User.findOne({ _id: req.user._id });
+    console.log(oldpass, newpass, newpass1, _id);
+    user.comparePassword(oldpass, async (error, isMatch) => {
+      if (error) {
+        return res.status(400).json({
+          status: "false",
+          message: "password doesn't match",
+        });
+      } else {
+        if (!isMatch) {
+          return res
+            .status(400)
+            .json({ status: "false", message: "Wrong Password" });
+        }
+      }
+    });
+    const hash1 = await bcrypt.hash(newpass1, 10);
+    let updatePassword = await User.updateOne(
+      { _id: req.user._id },
+      { password: hash1 }
+    );
+    if (!updatePassword)
+      return res.status(400).json({ error: "reset password error " });
 
+    return res.status(200).json({ msg: "success" });
+  }
+);
 module.exports = router;
