@@ -5,6 +5,9 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const mailController = require("../controllers/mailer");
 // const VerificationDocument = require("../models/verificationDocument");
+const ResetPasswordRequest = require("../models/password_reset_request");
+const { collection, addDoc } = require("firebase/firestore");
+const { db } = require("../controllers/firebase");
 
 const passport = require("passport");
 const Joi = require("joi");
@@ -235,5 +238,54 @@ router.post(
     }
   }
 );
+
+// router.post("/reset_password_email", (req, res) => {
+//   let { email } = req.body;
+//   let resetPasswordByEmail = async (user_id, email) => {
+//     let mRandomCode = randomAsciiString(30);
+
+//     let mResetPassReq = new ResetPasswordRequest({
+//       user_id,
+//       code: mRandomCode,
+//       used: false,
+//     });
+
+//     let saveRequestResult = await mResetPassReq.save();
+
+//     if (!saveRequestResult) return false;
+
+//     let MailGenerator = new Mailgen({
+//       theme: "salted",
+//       product: {
+//         name: "Techsiocc-noreplay",
+//         link: "https://techsiocc.com/",
+//         // Custom copyright notice
+//         copyright: "Copyright © 2020 Techsiocc. All rights reserved.",
+//       },
+//     });
+
+//     mailController.sendMail(
+//       "Turing LTD",
+//       "noreply@turingjobsdz.com",
+//       "Reset password",
+//       `Click the link below to reset your password <br><br> \n\n
+//       https://techsiocc.com/resetpasswordemail/${mRandomCode}
+//        `
+//     );
+//   };
+// });
+router.post("/sendSMS", async (req, res) => {
+  let { message, to } = req.body;
+  let confirmationCode = Number(Math.random() * 999999).toFixed(0);
+  try {
+    const docRef = await addDoc(collection(db, "messages"), {
+      to: "+213776223271",
+      body: `your verification code is  :  ${confirmationCode} `,
+    });
+    console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+});
 
 module.exports = router;
