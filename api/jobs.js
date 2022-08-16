@@ -21,8 +21,7 @@ router.post(
       estimated_time,
     } = req.body;
     console.log(req.body);
-    const creator  = req.user._id;
-   
+    const creator = req.user._id;
 
     if (
       !owner ||
@@ -56,4 +55,26 @@ router.post(
     }
   }
 );
+
+router.get(
+  "/getAllJobs",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    let allJobs = await Job.find({});
+    if (allJobs) return res.json({ allJobs });
+    else res.json({ status: "false", message: "Error getting all jobs" });
+  }
+);
+
+router.get(
+  "/getOneJob",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    const _id = req.body._id;
+    let oneJob = await Job.findOne({ _id : req.body._id });
+    if (oneJob) return res.json({ oneJob });
+    else res.json({ status: "false", message: "Error finding this job" });
+  }
+);
+
 module.exports = router;

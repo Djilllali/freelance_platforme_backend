@@ -288,7 +288,7 @@ router.post(
     );
     if (!updatePassword)
       return res.status(400).json({ error: "reset password error " });
-
+  })
 // router.post("/reset_password_email", (req, res) => {
 //   let { email } = req.body;
 //   let resetPasswordByEmail = async (user_id, email) => {
@@ -338,4 +338,4 @@ router.post("/sendSMS", async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports=router;
