@@ -36,6 +36,20 @@ server.use(passport.session());
 
 server.use("/users", require("./api/users"));
 server.use("/admins", require("./api/admins"));
+server.use("/jobs", require("./api/jobs"));
+
+server.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["email", "profile"] })
+);
+
+server.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    successRedirect: "/auth/google/success",
+    failureRedirect: "/auth/google/failure",
+  })
+);
 // ================== Launch Server =======================================================
 server.use(express.static(path.join(__dirname, "public")));
 server.use("/", indexRouter);
