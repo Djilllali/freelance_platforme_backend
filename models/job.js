@@ -24,6 +24,13 @@ const JobSchema = new Schema({
     type: Date,
     required: true,
   },
+  status: {
+    type: String,
+    enum: ["virgin", "inprogress","finished", "approved", "paid"],
+    default: "virgin",
+    required: true,
+    index: true,
+  },
   thread: [
     {
       sender: {
