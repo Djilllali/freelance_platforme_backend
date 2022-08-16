@@ -13,7 +13,10 @@ var path = require("path");
 const indexRouter = require("./router");
 const server = express();
 require("./controllers/passport");
+const helmet = require("helmet");
+
 // =====================  MiidleWares===================================================
+server.use(helmet());
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 // =========Passport Auth=======
