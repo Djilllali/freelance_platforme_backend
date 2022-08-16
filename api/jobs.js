@@ -21,7 +21,8 @@ router.post(
       estimated_time,
     } = req.body;
     console.log(req.body);
-    const { creator } = req.user._id;
+    const creator  = req.user._id;
+   
 
     if (
       !owner ||
