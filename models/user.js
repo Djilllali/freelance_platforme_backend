@@ -27,12 +27,20 @@ const UserSchema = new mongoose.Schema({
   },
   bio: {
     type: String,
-    required: true,
+    required: false,
     default: "",
   },
   googleId: {
     type: String,
     required: false,
+  },
+  domain: {
+    ref: "Domain",
+    type: mongoose.Schema.Types.ObjectId,
+  },
+  pack: {
+    ref: "Pack",
+    type: mongoose.Schema.Types.ObjectId,
   },
 });
 UserSchema.methods.comparePassword = async function (

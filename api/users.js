@@ -151,8 +151,8 @@ router.get(
     if (req.user) {
       let mUser = await User.findById(
         req.user._id,
-        "name phone email licenses"
-      );
+        "name phone email bio pack domain"
+      ).populate("pack domain");
       if (!mUser) {
         return res
           .status(400)
@@ -288,7 +288,8 @@ router.post(
     );
     if (!updatePassword)
       return res.status(400).json({ error: "reset password error " });
-  })
+  }
+);
 // router.post("/reset_password_email", (req, res) => {
 //   let { email } = req.body;
 //   let resetPasswordByEmail = async (user_id, email) => {
@@ -337,5 +338,8 @@ router.post("/sendSMS", async (req, res) => {
     console.error("Error adding document: ", e);
   }
 });
+router.get("/shit", passport.authenticate("google"), (req, res) => {
+  res.send("random shit");
+});
 
-module.exports=router;
+module.exports = router;

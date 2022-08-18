@@ -37,6 +37,8 @@ server.use(passport.session());
 server.use("/users", require("./api/users"));
 server.use("/admins", require("./api/admins"));
 server.use("/jobs", require("./api/jobs"));
+server.use("/packs", require("./api/packs"));
+server.use("/domains", require("./api/domains"));
 
 server.get(
   "/auth/google",
@@ -52,6 +54,7 @@ server.get(
 );
 // ================== Launch Server =======================================================
 server.use(express.static(path.join(__dirname, "public")));
+server.use(express.static(path.join(__dirname, "statics")));
 server.use("/", indexRouter);
 
 server.listen(PORT, () => {
