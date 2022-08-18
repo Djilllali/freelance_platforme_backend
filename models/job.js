@@ -11,7 +11,10 @@ const JobSchema = new Schema({
     type: String,
     ref: "User",
   },
-
+  assignedTo: {
+    type: String,
+    ref: "User",
+  },
   description: {
     type: String,
     required: true,
