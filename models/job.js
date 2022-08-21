@@ -4,15 +4,15 @@ const Schema = mongoose.Schema;
 
 const JobSchema = new Schema({
   owner: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
   },
   creator: {
-    type: String,
+    type: Schema.Types.ObjectId,
     ref: "User",
   },
   assignedTo: {
-    type: String,
+    type: Schema.Types.ObjectId,
     ref: "User",
   },
   description: {
@@ -29,7 +29,7 @@ const JobSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["virgin", "inprogress","finished", "approved", "paid"],
+    enum: ["virgin", "inprogress", "finished", "approved", "paid"],
     default: "virgin",
     required: true,
     index: true,

@@ -15,6 +15,7 @@ const server = express();
 require("./controllers/passport");
 const helmet = require("helmet");
 const { downloadFile } = require("./controllers/upload");
+const morgan = require('morgan')
 
 // =====================  MiidleWares===================================================
 server.use(helmet());
@@ -34,7 +35,7 @@ server.use(passport.initialize());
 server.use(passport.session());
 
 // ================== Routes ===========================================================
-
+server.use(morgan('tiny'))
 server.use("/users", require("./api/users"));
 server.use("/admins", require("./api/admins"));
 server.use("/jobs", require("./api/jobs"));

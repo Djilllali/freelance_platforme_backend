@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const passport = require("passport");
 const Job = require("../models/job");
+const Withdrawal_req = require("../models/withdrawal_request");
 const Joi = require("joi");
 const { JWTSECRET } = require("../utils/constants");
 
@@ -119,6 +120,33 @@ router.get(
         .json({ status: "false", message: "Error updating job" });
     } else {
       res.json({ status: "true", message: "job updated sexfully" });
+    }
+  }
+);
+router.post(
+  "/withdrawal_request",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    const { job_id, user_id, payment_method } = req.body;
+
+    let mJob = await Job.findOne({ job_id });
+    if (mJob) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "withdrawal already exists" });
+    }
+    let Withdrawal = new Withdrawal_req({
+      job_id,
+      user_id,
+      payment_method,
+    });
+    let withdrawalResult = await Withdrawal.save();
+    if (!withdrawalResult) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Error creating withdrawal" });
+    } else {
+      res.json({ status: "true", message: "withdrawal created successfully" });
     }
   }
 );
