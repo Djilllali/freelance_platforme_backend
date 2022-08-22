@@ -3,7 +3,9 @@ require("dotenv").config();
 module.exports = {
   sendMail: (name, email, subject, message, OnError, OnSuccess) => {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.123-reg.co.uk",
+      port: 465,
+      secure:true,
       auth: {
         user: process.env.EMAIL_ADDR,
         pass: process.env.EMAIL_PASSWORD,
@@ -23,10 +25,8 @@ module.exports = {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log("------------------err ", error);
-        OnError();
       } else {
-        console.log("------------------ sent ", error);
-        OnSuccess();
+        console.log("------------------ sent ", info);
       }
     });
   },

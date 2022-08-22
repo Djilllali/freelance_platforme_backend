@@ -7,13 +7,15 @@ const port = require("./utils/constants");
 const { MONGO_URI } = require("./utils/database");
 const session = require("express-session");
 const passport = require("passport");
-const { PORT } = require("./utils/constants");
+const { PORT, SECRET_KEY, ACCESS_KEY } = require("./utils/constants");
 const cors = require("cors");
 var path = require("path");
 const indexRouter = require("./router");
 const server = express();
 require("./controllers/passport");
 const helmet = require("helmet");
+const { downloadFile } = require("./controllers/upload");
+const morgan = require('morgan')
 
 // =====================  MiidleWares===================================================
 server.use(helmet());
@@ -28,23 +30,30 @@ server.use(
     saveUninitialized: true,
   })
 );
-server.use(cors());
+server.use(cors({origin : "*"}));
 server.use(passport.initialize());
 server.use(passport.session());
 
 // ================== Routes ===========================================================
-
+server.use(morgan('tiny'))
 server.use("/users", require("./api/users"));
 server.use("/admins", require("./api/admins"));
 server.use("/jobs", require("./api/jobs"));
 server.use("/packs", require("./api/packs"));
 server.use("/domains", require("./api/domains"));
 
+server.use("/s3", require("./api/uploadFile"));
 server.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["email", "profile"] })
 );
+server.get("/files/:key", (req, res) => {
+  console.log(req.params);
+  const key = req.params.key;
+  const readStream = downloadFile(key);
 
+  readStream.pipe(res);
+});
 server.get(
   "/auth/google/callback",
   passport.authenticate("google", {
@@ -52,6 +61,7 @@ server.get(
     failureRedirect: "/auth/google/failure",
   })
 );
+
 // ================== Launch Server =======================================================
 server.use(express.static(path.join(__dirname, "public")));
 server.use(express.static(path.join(__dirname, "statics")));

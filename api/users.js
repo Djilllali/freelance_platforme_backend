@@ -198,6 +198,16 @@ router.post("/sendMail", async (req, res) => {
 
   res.send("sent succesfully");
 });
+router.post("/contact", async (req, res) => {
+  mailController.sendMail(
+    "Turing LTD",
+    process.env.EMAIL_ADDR1,
+    "TURING NEWSLETTER",
+    "this is the visitors message from the website weeeeeew "
+  );
+
+  res.send("sent succesfully");
+});
 router.post(
   "/edit_profile",
   passport.authenticate("jwt", { session: false }),

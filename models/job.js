@@ -4,14 +4,17 @@ const Schema = mongoose.Schema;
 
 const JobSchema = new Schema({
   owner: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
   },
   creator: {
-    type: String,
+    type: Schema.Types.ObjectId,
     ref: "User",
   },
-
+  assignedTo: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
   description: {
     type: String,
     required: true,
@@ -26,10 +29,21 @@ const JobSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["virgin", "inprogress","finished", "approved", "paid"],
+    enum: ["virgin", "inprogress", "finished", "approved", "paid"],
     default: "virgin",
     required: true,
     index: true,
+  },
+  skills: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
+  domain: {
+    type: Schema.Types.ObjectId,
+    ref: "domain",
+    required: true,
   },
   thread: [
     {
