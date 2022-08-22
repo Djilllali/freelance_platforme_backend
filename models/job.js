@@ -34,6 +34,17 @@ const JobSchema = new Schema({
     required: true,
     index: true,
   },
+  skills: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
+  domain: {
+    type: Schema.Types.ObjectId,
+    ref: "domain",
+    required: true,
+  },
   thread: [
     {
       sender: {
