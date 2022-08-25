@@ -3,19 +3,19 @@ const bcrypt = require("bcrypt");
 const Schema = mongoose.Schema;
 
 const JobSchema = new Schema({
-  owner: {
-    type: Schema.Types.ObjectId,
-    required: true,
-  },
   creator: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Admin",
   },
   assignedTo: {
     type: Schema.Types.ObjectId,
     ref: "User",
   },
   description: {
+    type: String,
+    required: true,
+  },
+  title: {
     type: String,
     required: true,
   },

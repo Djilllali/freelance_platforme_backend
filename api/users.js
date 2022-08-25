@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
+const Admin = require("../models/admin");
 const jwt = require("jsonwebtoken");
 const mailController = require("../controllers/mailer");
 const bcrypt = require("bcrypt");
@@ -146,13 +147,14 @@ router.get(
 // ================== get Profile ===========================
 router.get(
   "/get_profile",
-  passport.authenticate("jwt", { session: false }),
+  passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
+    console.log("req", req.user);
     if (req.user) {
-      let mUser = await User.findById(
+      let mUser = await Admin.findById(
         req.user._id,
-        "name phone email bio pack domain"
-      ).populate("pack domain");
+        "name email "
+      )
       if (!mUser) {
         return res
           .status(400)
@@ -167,7 +169,7 @@ router.get(
   }
 );
 router.get(
-  "/get_profile",
+  "/get_user_profile",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
@@ -335,6 +337,27 @@ router.post(
 //     );
 //   };
 // });
+
+router.get(
+  "/get_users",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    if (req.user) {
+      let mAdmin = await User.find({}, "name  email verified phone ");
+      if (!mAdmin) {
+        return res
+          .status(400)
+          .json({ status: "false", message: " Error ! could not get admins" });
+      }
+      return res.json({
+        status: "true",
+        message: "admins fetched successfully",
+        data: mAdmin,
+      });
+    }
+  }
+);
+
 router.post("/sendSMS", async (req, res) => {
   let { message, to } = req.body;
   let confirmationCode = Number(Math.random() * 999999).toFixed(0);

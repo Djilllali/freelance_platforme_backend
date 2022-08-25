@@ -61,9 +61,30 @@ router.get(
   "/getAllJobs",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
-    let allJobs = await Job.find({});
+    let allJobs = await Job.find({})
+      .populate("creator", "name")
+      .populate("assignedTo", "name");
     if (allJobs) return res.json({ allJobs });
     else res.json({ status: "false", message: "Error getting all jobs" });
+  }
+);
+
+router.get(
+  "/getJobsByDomain",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    const domain_id = req.body.domain;
+    let mJobs = await Job.find({ domain: domain_id }).populate("domain");
+
+    const result = mJobs.filter((elem) => {
+      return (
+        elem.title.includes(req.body.keyword) ||
+        elem.description.includes(req.body.keyword)
+      );
+    });
+
+    if (assignedJobs) return res.json({ assignedJobs });
+    else res.json({ status: "false", message: "Error getting assigned jobs" });
   }
 );
 
