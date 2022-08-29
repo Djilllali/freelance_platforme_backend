@@ -14,8 +14,13 @@ const JobSchema = new Schema({
   assignedTo: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    default: null,
   },
   description: {
+    type: String,
+    required: true,
+  },
+  title: {
     type: String,
     required: true,
   },

@@ -8,6 +8,7 @@ const Job = require("../models/job");
 const Withdrawal_req = require("../models/withdrawal_request");
 const Joi = require("joi");
 const { JWTSECRET } = require("../utils/constants");
+const User = require("../models/user");
 
 router.post(
   "/createNewJob",
@@ -99,6 +100,60 @@ router.get(
     const _id = req.body._id;
     let oneJob = await Job.findOne({ _id: req.body._id });
     if (oneJob) return res.json({ oneJob });
+    else res.json({ status: "false", message: "Error finding this job" });
+  }
+);
+router.get(
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let oneJob = await Job.findOne(
+      { _id: req.params.id },
+      "title description domain estimated_time client_price skills"
+    );
+    if (oneJob) return res.json({ oneJob });
+    else res.json({ status: "false", message: "Error finding this job" });
+  }
+);
+router.post(
+  "/explore",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { filters } = req.body;
+
+    let mUSer = await User.findById(req.user._id);
+    if (!mUSer) return res.status(403);
+    let query = {};
+    if (!filters?.domain) {
+      query.domain = mUSer.domain?.toString();
+    } else {
+      query.domain = filters.domain;
+    }
+    if (!filters?.keyword) {
+      query.keyword = "";
+    } else {
+      query.keyword = filters.keyword;
+    }
+    if (!filters?.skills) {
+      query.skills = null;
+    } else {
+      query.skills = filters.skills;
+    }
+    console.log("--------explore jobs query", query);
+    let jobs = await Job.find({
+      $and: [
+        { $or: [{ assignedTo: { $exists: false } }, { assignedTo: null }] },
+        { domain: query.domain },
+        {
+          $or: [
+            { description: { $regex: query.keyword } },
+            { title: { $regex: query.keyword } },
+          ],
+        },
+        { skills: query.skills ? { $in: query.skills } : { $exists: true } },
+      ],
+    });
+    if (jobs) return res.json({ jobs });
     else res.json({ status: "false", message: "Error finding this job" });
   }
 );
