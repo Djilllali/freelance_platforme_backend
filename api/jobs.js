@@ -111,7 +111,7 @@ router.get(
       { _id: req.params.id },
       "title description domain estimated_time client_price skills"
     );
-    if (oneJob) return res.json({ oneJob });
+    if (oneJob) return res.json({ job: oneJob });
     else res.json({ status: "false", message: "Error finding this job" });
   }
 );
