@@ -109,7 +109,7 @@ router.get(
   async (req, res) => {
     let oneJob = await Job.findOne(
       { _id: req.params.id },
-      "title description domain estimated_time client_price skills"
+      "title description domain estimated_time client_price skills status"
     );
     if (oneJob) return res.json({ job: oneJob });
     else res.json({ status: "false", message: "Error finding this job" });
