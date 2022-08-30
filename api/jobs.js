@@ -178,6 +178,26 @@ router.get(
     }
   }
 );
+router.get(
+  "/takeJob",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const _id = req.body._id;
+
+    let updated = await Job.findOneAndUpdate(
+      { _id: req.body._id },
+      { assignedTo: req.user._id, status: "inprogress" }
+    );
+
+    if (!updated) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Error updating job" });
+    } else {
+      res.json({ status: "true", message: "job updated sexfully" });
+    }
+  }
+);
 router.post(
   "/withdrawal_request",
   passport.authenticate("admin-jwt", { session: false }),
