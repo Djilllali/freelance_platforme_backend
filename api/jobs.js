@@ -103,18 +103,7 @@ router.get(
     else res.json({ status: "false", message: "Error finding this job" });
   }
 );
-router.get(
-  "/:id",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    let oneJob = await Job.findOne(
-      { _id: req.params.id },
-      "title description domain estimated_time client_price skills status"
-    );
-    if (oneJob) return res.json({ job: oneJob });
-    else res.json({ status: "false", message: "Error finding this job" });
-  }
-);
+
 router.post(
   "/explore",
   passport.authenticate("jwt", { session: false }),
@@ -161,9 +150,12 @@ router.post(
   "/myjobs",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    let jobs = await Job.find({
-      assignedTo: req.user._id,
-    });
+    let jobs = await Job.find(
+      {
+        assignedTo: req.user._id,
+      },
+      "title description domain estimated_time client_price skills status"
+    );
     if (jobs) return res.json({ jobs });
     else res.json({ status: "false", message: "Error finding this job" });
   }
@@ -236,5 +228,32 @@ router.post(
     }
   }
 );
-
+router.get(
+  "/withdrawal_requests",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let mWithdrawalRequests = await Withdrawal_req.find({
+      user_id: req.user._id,
+    });
+    if (mWithdrawalRequests) {
+      return res.json({ data: mWithdrawalRequests });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Could not get withdrawal requests" });
+    }
+  }
+);
+router.get(
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let oneJob = await Job.findOne(
+      { _id: req.params.id },
+      "title description domain estimated_time client_price skills status"
+    );
+    if (oneJob) return res.json({ job: oneJob });
+    else res.json({ status: "false", message: "Error finding this job" });
+  }
+);
 module.exports = router;
