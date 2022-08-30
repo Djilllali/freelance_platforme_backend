@@ -244,6 +244,40 @@ router.get(
     }
   }
 );
+router.post(
+  "/cancel_withdrawal_request/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    console.log("------------- withdrawal id ", req.params.id);
+    let mWithdrawalRequest = await Withdrawal_req.findOne({
+      _id: req.params.id,
+    });
+
+    if (!mWithdrawalRequest)
+      return res.status(400).json({
+        status: "false",
+        message: "withdrawal request does not exist",
+      });
+
+    if (mWithdrawalRequest.status !== "verifiying") {
+      return res.status(400).json({
+        status: "false",
+        message: "could not cancel withdrawal request that is already verified",
+      });
+    }
+    let deleteWithdrawalRequestResult = await Withdrawal_req.deleteOne({
+      _id: req.params.id,
+    });
+    if (!deleteWithdrawalRequestResult) {
+      return res.status(400).json({
+        status: "false",
+        message: "could not cancel withdrawal request",
+      });
+    } else {
+      return res.json({ status: true, message: "deleted successfully " });
+    }
+  }
+);
 router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),
