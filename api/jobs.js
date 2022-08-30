@@ -157,6 +157,17 @@ router.post(
     else res.json({ status: "false", message: "Error finding this job" });
   }
 );
+router.post(
+  "/myjobs",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    let jobs = await Job.find({
+      assignedTo: req.user._id,
+    });
+    if (jobs) return res.json({ jobs });
+    else res.json({ status: "false", message: "Error finding this job" });
+  }
+);
 
 router.get(
   "/updateJobStatus",
