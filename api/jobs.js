@@ -123,7 +123,7 @@ router.post(
     } else {
       query.keyword = filters.keyword;
     }
-    if (!filters?.skills) {
+    if (!filters?.skills || filters?.skills?.length < 1) {
       query.skills = null;
     } else {
       query.skills = filters.skills;
@@ -207,11 +207,46 @@ router.post(
   async (req, res) => {
     const { job_id, user_id, payment_method } = req.body;
 
-    let mJob = await Job.findOne({ job_id });
+    let mJob = await Withdrawal_req.findOne({ job_id });
     if (mJob) {
       return res
         .status(400)
         .json({ status: "false", message: "withdrawal already exists" });
+    }
+    let Withdrawal = new Withdrawal_req({
+      job_id,
+      user_id,
+      payment_method,
+    });
+    let withdrawalResult = await Withdrawal.save();
+    if (!withdrawalResult) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Error creating withdrawal" });
+    } else {
+      res.json({ status: "true", message: "withdrawal created successfully" });
+    }
+  }
+);
+router.post(
+  "/create_withdrawal_request",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { job_id, payment_method } = req.body;
+    const user_id = req.user._id;
+    console.log("************************** ", req.body);
+    let mJob = await Job.findOne({ _id: job_id });
+
+    if (mJob) {
+      if (mJob.status !== "approved") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "job  is not  approved yet" });
+      }
+    } else {
+      return res
+        .status(400)
+        .json({ status: "false", message: "job  does not  exist" });
     }
     let Withdrawal = new Withdrawal_req({
       job_id,

@@ -29,7 +29,7 @@ const WithdrawalSchema = new Schema({
   payment_method: {
     type: String,
     enum: ["cash", "ccp", "visa"],
-    default: "verifiying",
+    default: "cash",
     required: true,
     index: true,
   },
