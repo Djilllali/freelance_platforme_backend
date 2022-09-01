@@ -198,7 +198,7 @@ router.get(
         .status(400)
         .json({ status: "false", message: "Error updating job" });
     } else {
-      res.json({ status: "true", message: "job updated sexfully" });
+      res.json({ status: "true", message: "job updated successfully" });
     }
   }
 );
