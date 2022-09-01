@@ -50,6 +50,9 @@ const JobSchema = new Schema({
     ref: "domain",
     required: true,
   },
+
+  submission: { message: String, file: String, time: Date },
+
   thread: [
     {
       sender: {
