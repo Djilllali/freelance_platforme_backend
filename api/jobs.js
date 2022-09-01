@@ -189,7 +189,7 @@ router.get(
     const _id = req.body._id;
 
     let updated = await Job.findOneAndUpdate(
-      { _id: req.body._id },
+      { _id: req.body._id, status: "virgin" },
       { assignedTo: req.user._id, status: "inprogress" }
     );
 
@@ -340,7 +340,6 @@ router.get(
         console.log("ùùùùùùùù%%%%%%%%% deleting ");
         oneJob.submission = undefined;
         oneJob.assignedTo = undefined;
-        oneJob.status = "blocked";
       }
       console.log("-------------------- getjob onejob res ", oneJob);
       return res.json({ job: oneJob });

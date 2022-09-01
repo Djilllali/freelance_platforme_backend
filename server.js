@@ -15,7 +15,7 @@ const server = express();
 require("./controllers/passport");
 const helmet = require("helmet");
 const { downloadFile } = require("./controllers/upload");
-const morgan = require('morgan')
+const morgan = require("morgan");
 
 // =====================  MiidleWares===================================================
 server.use(helmet());
@@ -30,12 +30,12 @@ server.use(
     saveUninitialized: true,
   })
 );
-server.use(cors({origin : "*"}));
+server.use(cors({ origin: "*" }));
 server.use(passport.initialize());
 server.use(passport.session());
 
 // ================== Routes ===========================================================
-server.use(morgan('tiny'))
+server.use(morgan("tiny"));
 server.use("/users", require("./api/users"));
 server.use("/admins", require("./api/admins"));
 server.use("/jobs", require("./api/jobs"));
@@ -50,8 +50,8 @@ server.get(
 server.get("/files/:key", (req, res) => {
   console.log(req.params);
   const key = req.params.key;
+  res.setHeader("Content-Type", "application/zip");
   const readStream = downloadFile(key);
-
   readStream.pipe(res);
 });
 server.get(
