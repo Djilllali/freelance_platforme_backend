@@ -182,7 +182,7 @@ router.get(
     }
   }
 );
-router.get(
+router.post(
   "/takeJob",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
