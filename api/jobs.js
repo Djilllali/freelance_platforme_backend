@@ -140,6 +140,7 @@ router.post(
           ],
         },
         { skills: query.skills ? { $in: query.skills } : { $exists: true } },
+        { status: "virgin" },
       ],
     });
     if (jobs) return res.json({ jobs });
@@ -319,10 +320,31 @@ router.get(
   async (req, res) => {
     let oneJob = await Job.findOne(
       { _id: req.params.id },
-      "title description domain estimated_time client_price skills status"
+      "title description assignedTo domain estimated_time client_price skills status submission"
     );
-    if (oneJob) return res.json({ job: oneJob });
-    else res.json({ status: "false", message: "Error finding this job" });
+    if (oneJob) {
+      console.log(
+        "-----^^^^^^^^^^^^^assigned to ",
+        oneJob.assignedTo?.toString()
+      );
+      console.log("-----^^^^^^^^^^^^^user  id ", req.user.id);
+      console.log(
+        "-----^^^^^^^^^^^^^ is equal  ",
+        req.user.id == oneJob.assignedTo?.toString()
+      );
+      console.log(
+        "-----^^^^^^^^^^^^^ is STRICT equal  ",
+        req.user.id === oneJob.assignedTo?.toString()
+      );
+      if (oneJob.assignedTo?.toString() !== req.user.id) {
+        console.log("ùùùùùùùù%%%%%%%%% deleting ");
+        oneJob.submission = undefined;
+        oneJob.assignedTo = undefined;
+        oneJob.status = "blocked";
+      }
+      console.log("-------------------- getjob onejob res ", oneJob);
+      return res.json({ job: oneJob });
+    } else res.json({ status: "false", message: "Error finding this job" });
   }
 );
 module.exports = router;
