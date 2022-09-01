@@ -40,6 +40,7 @@ module.exports = {
             file: filename,
             time: Date.now(),
           },
+          status: "finished",
         },
         (err, doc) => {
           console.log(
