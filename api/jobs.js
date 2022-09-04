@@ -58,7 +58,7 @@ router.post(
   }
 );
 
-router.get(
+router.post(
   "/getAllJobs",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
@@ -68,7 +68,7 @@ router.get(
   }
 );
 
-router.get(
+router.post(
   "/getAssignedJobs",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
@@ -93,7 +93,7 @@ router.get(
   }
 );
 
-router.get(
+router.post(
   "/getOneJob",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
@@ -162,7 +162,7 @@ router.post(
   }
 );
 
-router.get(
+router.post(
   "/updateJobStatus",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
@@ -264,7 +264,7 @@ router.post(
     }
   }
 );
-router.get(
+router.post(
   "/withdrawal_requests",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
@@ -314,7 +314,7 @@ router.post(
     }
   }
 );
-router.get(
+router.post(
   "/:id",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {

@@ -134,7 +134,7 @@ router.post("/login", async (req, res, next) => {
 
 // ================== check user ===========================
 
-router.get(
+router.post(
   "/protected",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
@@ -144,7 +144,7 @@ router.get(
 // ===========================================================
 
 // ================== get Profile ===========================
-router.get(
+router.post(
   "/get_profile",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
@@ -166,7 +166,7 @@ router.get(
     }
   }
 );
-router.get(
+router.post(
   "/get_profile",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
@@ -348,7 +348,7 @@ router.post("/sendSMS", async (req, res) => {
     console.error("Error adding document: ", e);
   }
 });
-router.get("/shit", passport.authenticate("google"), (req, res) => {
+router.post("/shit", passport.authenticate("google"), (req, res) => {
   res.send("random shit");
 });
 

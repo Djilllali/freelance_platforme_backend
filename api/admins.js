@@ -212,7 +212,7 @@ router.post(
   }
 );
 
-router.get(
+router.post(
   "/protected",
   passport.authenticate("admin-jwt", { session: false }),
   (req, res) => {
