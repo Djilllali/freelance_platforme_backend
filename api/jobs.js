@@ -269,7 +269,11 @@ router.post(
         .status(400)
         .json({ status: "false", message: "Error updating job" });
     } else {
-      res.json({ status: "true", message: "job updated successfully" });
+      res.json({
+        status: "true",
+        message: "job updated successfully",
+        data: _id,
+      });
     }
   }
 );
@@ -411,7 +415,7 @@ router.post(
   async (req, res) => {
     let oneJob = await Job.findOne(
       { _id: req.params.id },
-      "title description assignedTo domain estimated_time client_price skills status submission"
+      "title description assignedTo domain estimated_time client_price skills status submission file"
     );
     if (oneJob) {
       console.log(

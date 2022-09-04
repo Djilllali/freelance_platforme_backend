@@ -292,11 +292,32 @@ router.post(
 
 // ================== get Profile ===========================
 router.post(
-  "/get_profile",
+  "/get_user_profile",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
-      let mUser = await Admin.findById(req.user._id, "name email ");
+      let mUser = await User.findById(req.user._id, "name email ");
+      if (!mUser) {
+        return res
+          .status(400)
+          .json({ status: "false", message: " Error ! could not get user" });
+      }
+      return res.json({
+        status: "true",
+        message: "profile fetched successfully",
+        data: mUser,
+      });
+    }
+  }
+);
+router.post(
+  "/get_profile",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    if (req.user) {
+      let mUser = await User.findById(req.user._id, "name email bio").populate(
+        "pack domain"
+      );
       if (!mUser) {
         return res
           .status(400)
