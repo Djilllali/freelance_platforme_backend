@@ -53,10 +53,11 @@ const upload = multer({
   },
 });
 
+router.post("/upload", upload.single("upload"), UploadController.Generalupload);
 router.post(
-  "/upload",
+  "/submit_project",
   upload.single("upload"),
-  UploadController.Generalupload
+  UploadController.submitProject
 );
 
 module.exports = router;

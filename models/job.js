@@ -10,6 +10,7 @@ const JobSchema = new Schema({
   assignedTo: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    default: null,
   },
   description: {
     type: String,
@@ -49,6 +50,9 @@ const JobSchema = new Schema({
     ref: "Domain",
     required: true,
   },
+
+  submission: { message: String, file: String, time: Date },
+
   thread: [
     {
       sender: {

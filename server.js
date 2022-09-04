@@ -52,7 +52,6 @@ server.get("/files/:key", (req, res) => {
   const key = req.params.key;
   res.setHeader("Content-Type", "application/zip");
   const readStream = downloadFile(key);
-
   readStream.pipe(res);
 });
 server.get(
@@ -75,6 +74,7 @@ server.listen(PORT, () => {
 // ================== Connect Mongo Database ===============================================
 
 function connectDatabase() {
+  console.log("------------------- mongoURI", MONGO_URI);
   mongoose
     .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {

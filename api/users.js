@@ -311,7 +311,7 @@ router.post(
   }
 );
 router.post(
-  "/get_user_profile",
+  "/get_profile",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
@@ -514,7 +514,7 @@ router.post("/sendSMS", async (req, res) => {
     console.error("Error adding document: ", e);
   }
 });
-router.get("/shit", passport.authenticate("google"), (req, res) => {
+router.post("/shit", passport.authenticate("google"), (req, res) => {
   res.send("random shit");
 });
 
