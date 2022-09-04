@@ -74,6 +74,7 @@ server.listen(PORT, () => {
 // ================== Connect Mongo Database ===============================================
 
 function connectDatabase() {
+  console.log("------------------- mongoURI", MONGO_URI);
   mongoose
     .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
