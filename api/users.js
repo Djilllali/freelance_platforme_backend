@@ -34,7 +34,7 @@ router.post("/register", async (req, res) => {
     name: Joi.string().required().min(3).max(20),
   });
   const options = {
-    abortEarly: true, // include all errors
+    abortEarly: true, // include all error
     allowUnknown: true, // ignore unknown props
     stripUnknown: true, // remove unknown props
   };
@@ -79,6 +79,152 @@ router.post("/register", async (req, res) => {
 
 // **************** End Register *******************************
 
+// ============== create user ==========================================
+router.post("/createUser", async (req, res) => {
+  const schema = Joi.object({
+    password: Joi.string().min(6).max(30).required(),
+    email: Joi.string()
+      .required()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net", "fr", "dz"] },
+      }),
+    phone: Joi.string()
+      .required()
+      .min(9)
+      .max(12)
+      .pattern(/^[0-9]+$/),
+    password2: Joi.ref("password"),
+    name: Joi.string().required().min(3).max(20),
+    domain: Joi.string(),
+    pack: Joi.string(),
+  });
+  const options = {
+    abortEarly: true, // include all error
+    allowUnknown: true, // ignore unknown props
+    stripUnknown: true, // remove unknown props
+  };
+  const { error, value } = schema.validate(req.body, options);
+  if (error) {
+    return res
+      .status(400)
+      .json({ status: "false", message: error.details[0].message });
+  } else {
+    req.body = value;
+  }
+  let { email, password, phone, name, domain, pack } = req.body;
+
+  let userWithSameEmail = await User.findOne({ email: email });
+  if (userWithSameEmail) {
+    return res
+      .status(400)
+      .json({ status: "false", message: "Email already used by another user" });
+  }
+  let userWithSamePhone = await User.findOne({ phone: phone });
+  if (userWithSamePhone) {
+    return res
+      .status(400)
+      .json({ status: "false", message: "Phone already used by another user" });
+  }
+
+  let createdUser = new User({
+    phone,
+    email,
+    password,
+    name,
+    domain,
+    pack,
+  });
+  console.log(phone, email, password, name, domain, pack);
+  let createdUserResult = await createdUser.save();
+  if (!createdUserResult) {
+    return res
+      .status(400)
+      .json({ status: "false", message: "Error creating user" });
+  } else {
+    res.json({ status: "true", message: "registered successfully" });
+  }
+});
+// ************ End create user ********
+
+// ============== Edit user ==========================================
+router.post(
+  "/EditUser",
+  passport.authenticate("admin-jwt"),
+  async (req, res) => {
+    console.log("req.body", req.body);
+    const schema = Joi.object({
+      email: Joi.string()
+        .required()
+        .email({
+          minDomainSegments: 2,
+          tlds: { allow: ["com", "net", "fr", "dz"] },
+        }),
+      phone: Joi.string()
+        .required()
+        .min(9)
+        .max(12)
+        .pattern(/^[0-9]+$/),
+      name: Joi.string().required().min(3).max(20),
+      domain: Joi.string(),
+      pack: Joi.string(),
+      _id: Joi.string(),
+    });
+    const options = {
+      abortEarly: true, // include all error
+      allowUnknown: true, // ignore unknown props
+      stripUnknown: true, // remove unknown props
+    };
+    const { error, value } = schema.validate(req.body, options);
+    if (error) {
+      return res
+        .status(400)
+        .json({ status: "false", message: error.details[0].message });
+    } else {
+      req.body = value;
+    }
+    let { email, password, phone, name, domain, pack, _id } = req.body;
+
+    if (email) {
+      let userWithSameEmail = await User.findOne({
+        _id: { $ne: _id },
+        email: email,
+      });
+      if (userWithSameEmail) {
+        return res.status(400).json({
+          status: "false",
+          message: "Email already used by another user",
+        });
+      }
+    }
+    if (phone) {
+      let userWithSamePhone = await User.findOne({
+        _id: { $ne: _id },
+        phone: phone,
+      });
+      if (userWithSamePhone) {
+        return res.status(400).json({
+          status: "false",
+          message: "Phone already used by another user",
+        });
+      }
+    }
+    let updatedUserResult = await User.findOneAndUpdate(
+      { _id: req.body._id },
+      { phone, email, password, name, domain, pack }
+    );
+    if (!updatedUserResult) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Error updating user" });
+    } else {
+      res.json({
+        status: "true",
+        message: "Updated successfully",
+      });
+    }
+  }
+);
 // =================Signin ========================================
 router.post("/login", async (req, res, next) => {
   const schema = Joi.object({
@@ -135,7 +281,7 @@ router.post("/login", async (req, res, next) => {
 
 // ================== check user ===========================
 
-router.get(
+router.post(
   "/protected",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
@@ -145,16 +291,12 @@ router.get(
 // ===========================================================
 
 // ================== get Profile ===========================
-router.get(
+router.post(
   "/get_profile",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
-    console.log("req", req.user);
     if (req.user) {
-      let mUser = await Admin.findById(
-        req.user._id,
-        "name email "
-      )
+      let mUser = await Admin.findById(req.user._id, "name email ");
       if (!mUser) {
         return res
           .status(400)
@@ -168,7 +310,7 @@ router.get(
     }
   }
 );
-router.get(
+router.post(
   "/get_user_profile",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
@@ -278,7 +420,6 @@ router.post(
     if (newpass !== newpass1)
       return res.status(400).json({ error: "Passwords are not identical" });
     let user = await User.findOne({ _id: req.user._id });
-    console.log(oldpass, newpass, newpass1, _id);
     user.comparePassword(oldpass, async (error, isMatch) => {
       if (error) {
         return res.status(400).json({
@@ -338,12 +479,14 @@ router.post(
 //   };
 // });
 
-router.get(
+router.post(
   "/get_users",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
-      let mAdmin = await User.find({}, "name  email verified phone ");
+      let mAdmin = await User.find({}, "name  email verified phone ")
+        .populate("domain", "")
+        .populate("pack", "");
       if (!mAdmin) {
         return res
           .status(400)

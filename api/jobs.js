@@ -14,37 +14,28 @@ router.post(
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
     const {
-      owner,
+      title,
       description,
       deadline,
+      estimated_time,
       initial_price,
       client_price,
-      estimated_time,
+      domain,
+      file,
     } = req.body;
     console.log(req.body);
     const creator = req.user._id;
 
-    if (
-      !owner ||
-      !description ||
-      !deadline ||
-      !initial_price ||
-      !client_price ||
-      !estimated_time
-    ) {
-      return res.json({
-        status: "error",
-        message: "some information are required !",
-      });
-    }
     let createJob = new Job({
-      owner,
+      title,
       description,
       deadline,
+      estimated_time,
       initial_price,
       client_price,
-      estimated_time,
+      domain,
       creator,
+      file,
     });
     let createdJobResult = await createJob.save();
     if (!createdJobResult) {
@@ -57,19 +48,20 @@ router.post(
   }
 );
 
-router.get(
+router.post(
   "/getAllJobs",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
     let allJobs = await Job.find({})
       .populate("creator", "name")
-      .populate("assignedTo", "name");
+      .populate("assignedTo", "name")
+      .populate("domain", "name");
     if (allJobs) return res.json({ allJobs });
     else res.json({ status: "false", message: "Error getting all jobs" });
   }
 );
 
-router.get(
+router.post(
   "/getJobsByDomain",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
@@ -88,7 +80,7 @@ router.get(
   }
 );
 
-router.get(
+router.post(
   "/getAssignedJobs",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
@@ -113,18 +105,21 @@ router.get(
   }
 );
 
-router.get(
-  "/getOneJob",
+router.post(
+  "/getOneJob/:_id",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
-    const _id = req.body._id;
-    let oneJob = await Job.findOne({ _id: req.body._id });
+    const { _id } = req.params;
+    let oneJob = await Job.findOne({ _id })
+      .populate("creator", "name")
+      .populate("assignedTo", "name")
+      .populate("domain", "name");
     if (oneJob) return res.json({ oneJob });
     else res.json({ status: "false", message: "Error finding this job" });
   }
 );
 
-router.get(
+router.post(
   "/updateJobStatus",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
@@ -141,6 +136,45 @@ router.get(
         .json({ status: "false", message: "Error updating job" });
     } else {
       res.json({ status: "true", message: "job updated sexfully" });
+    }
+  }
+);
+router.post(
+  "/updateJob",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    const _id = req.body._id;
+    const {
+      title,
+      description,
+      estimated_time,
+      domain,
+      initial_price,
+      client_price,
+      status,
+      deadline,
+    } = req.body;
+
+    let updated = await Job.findOneAndUpdate(
+      { _id: req.body._id },
+      {
+        title,
+        description,
+        estimated_time,
+        domain,
+        initial_price,
+        client_price,
+        status,
+        deadline,
+      }
+    );
+
+    if (!updated) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Error updating job" });
+    } else {
+      res.json({ status: "true", message: "job updated sexfully", data: _id });
     }
   }
 );

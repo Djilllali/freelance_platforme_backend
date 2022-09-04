@@ -19,6 +19,10 @@ const JobSchema = new Schema({
     type: String,
     required: true,
   },
+  file: {
+    type: String,
+    required: true,
+  },
   estimated_time: {
     type: Number,
     required: true,
@@ -37,12 +41,12 @@ const JobSchema = new Schema({
   skills: [
     {
       type: String,
-      required: true,
+      required: false,
     },
   ],
   domain: {
     type: Schema.Types.ObjectId,
-    ref: "domain",
+    ref: "Domain",
     required: true,
   },
   thread: [
