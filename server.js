@@ -40,6 +40,7 @@ server.use("/users", require("./api/users"));
 server.use("/admins", require("./api/admins"));
 server.use("/jobs", require("./api/jobs"));
 server.use("/packs", require("./api/packs"));
+server.use("/register", require("./api/registration"));
 server.use("/domains", require("./api/domains"));
 
 server.use("/s3", require("./api/uploadFile"));
