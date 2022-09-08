@@ -66,6 +66,8 @@ server.get(
 // ================== Launch Server =======================================================
 server.use(express.static(path.join(__dirname, "public")));
 server.use(express.static(path.join(__dirname, "statics")));
+server.use(express.static(path.join(__dirname, "public", "statics")));
+server.use(express.static(path.join(__dirname, "public", "panel")));
 server.use("/", indexRouter);
 
 server.listen(PORT, () => {
