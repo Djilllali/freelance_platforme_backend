@@ -95,7 +95,7 @@ router.post("/createUser", async (req, res) => {
       .max(12)
       .pattern(/^[0-9]+$/),
     password2: Joi.ref("password"),
-    name: Joi.string().required().min(3).max(20),
+    name: Joi.string().required().min(3).max(30),
     domain: Joi.string(),
     pack: Joi.string(),
   });
