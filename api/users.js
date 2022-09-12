@@ -229,12 +229,7 @@ router.post(
 router.post("/login", async (req, res, next) => {
   const schema = Joi.object({
     password: Joi.string().min(6).max(30).required(),
-    email: Joi.string()
-      .required()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: ["com", "net", "fr", "dz"] },
-      }),
+    email: Joi.string().required().email(),
   });
   const options = {
     abortEarly: true, // include all errors
