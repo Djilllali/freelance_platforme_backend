@@ -292,7 +292,7 @@ router.post(
 
 // ================== get Profile ===========================
 router.post(
-  "/get_profile",
+  "/get_user_profile",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
@@ -518,4 +518,24 @@ router.post("/shit", passport.authenticate("google"), (req, res) => {
   res.send("random shit");
 });
 
+router.post(
+  "/verifyUser",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    const _id = req.body._id;
+
+    let updated = await User.findOneAndUpdate(
+      { _id: req.body._id },
+      { verified: true }
+    );
+
+    if (!updated) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Error updating user" });
+    } else {
+      res.json({ status: "true", message: "user updated sexfully" });
+    }
+  }
+);
 module.exports = router;

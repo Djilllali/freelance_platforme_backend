@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const DomainSchema = new Schema({
   name: { type: String, required: true },
-  subdomains: { type: [String], required: true, default: [] },
+  subdomains: [{_id : Schema.Types.ObjectId , name : String }],
 });
 
 const Domain = mongoose.model("Domain", DomainSchema);

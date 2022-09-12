@@ -50,6 +50,11 @@ const JobSchema = new Schema({
     ref: "Domain",
     required: true,
   },
+  subdomain: {
+    type: Schema.Types.ObjectId,
+    ref: "Domain.subdomains",
+    required: false,
+  },
 
   submission: { message: String, file: String, time: Date },
 

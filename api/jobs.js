@@ -111,6 +111,7 @@ router.post(
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
     const { _id } = req.params;
+    console.log("_id", _id);
     let oneJob = await Job.findOne({ _id })
       .populate("creator", "name")
       .populate("assignedTo", "name")
@@ -199,41 +200,6 @@ router.post(
   }
 );
 
-/*. 
-
- "/updateJob",
-  passport.authenticate("admin-jwt", { session: false }),
-  async (req, res) => {
-    const _id = req.body._id;
-    const {
-      title,
-      description,
-      estimated_time,
-      domain,
-      initial_price,
-      client_price,
-      status,
-      deadline,
-    } = req.body;
-
-    let updated = await Job.findOneAndUpdate(
-      { _id: req.body._id },
-      {
-        title,
-        description,
-        estimated_time,
-        domain,
-        initial_price,
-        client_price,
-        status,
-        deadline,
-      }
-
-
-
-
-
-*/
 router.post(
   "/updateJob",
   passport.authenticate("admin-jwt", { session: false }),
@@ -269,7 +235,11 @@ router.post(
         .status(400)
         .json({ status: "false", message: "Error updating job" });
     } else {
-      res.json({ status: "true", message: "job updated successfully" });
+      res.json({
+        status: "true",
+        message: "job updated successfully",
+        data: _id,
+      });
     }
   }
 );
