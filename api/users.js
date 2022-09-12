@@ -95,7 +95,7 @@ router.post("/createUser", async (req, res) => {
       .max(12)
       .pattern(/^[0-9]+$/),
     password2: Joi.ref("password"),
-    name: Joi.string().required().min(3).max(20),
+    name: Joi.string().required().min(3).max(30),
     domain: Joi.string(),
     pack: Joi.string(),
   });
@@ -113,7 +113,7 @@ router.post("/createUser", async (req, res) => {
     req.body = value;
   }
   let { email, password, phone, name, domain, pack } = req.body;
-
+  console.log("-------------------req body ", req.body);
   let userWithSameEmail = await User.findOne({ email: email });
   if (userWithSameEmail) {
     return res
@@ -296,7 +296,28 @@ router.post(
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
-      let mUser = await Admin.findById(req.user._id, "name email ");
+      let mUser = await User.findById(req.user._id, "name email ");
+      if (!mUser) {
+        return res
+          .status(400)
+          .json({ status: "false", message: " Error ! could not get user" });
+      }
+      return res.json({
+        status: "true",
+        message: "profile fetched successfully",
+        data: mUser,
+      });
+    }
+  }
+);
+router.post(
+  "/get_profile",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    if (req.user) {
+      let mUser = await User.findById(req.user._id, "name email bio").populate(
+        "pack domain"
+      );
       if (!mUser) {
         return res
           .status(400)
@@ -358,7 +379,7 @@ router.post(
   async (req, res) => {
     const schema = Joi.object({
       bio: Joi.string().min(6).max(100),
-      name: Joi.string().min(3).max(20),
+      domain: Joi.string().min(3).max(32),
     });
     const options = {
       abortEarly: true, // include all errors

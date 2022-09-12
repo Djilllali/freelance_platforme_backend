@@ -381,7 +381,7 @@ router.post(
   async (req, res) => {
     let oneJob = await Job.findOne(
       { _id: req.params.id },
-      "title description assignedTo domain estimated_time client_price skills status submission"
+      "title description assignedTo domain estimated_time client_price skills status submission file"
     );
     if (oneJob) {
       console.log(

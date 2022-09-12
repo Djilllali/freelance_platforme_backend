@@ -40,6 +40,7 @@ server.use("/users", require("./api/users"));
 server.use("/admins", require("./api/admins"));
 server.use("/jobs", require("./api/jobs"));
 server.use("/packs", require("./api/packs"));
+server.use("/register", require("./api/registration"));
 server.use("/domains", require("./api/domains"));
 
 server.use("/s3", require("./api/uploadFile"));
@@ -65,6 +66,8 @@ server.get(
 // ================== Launch Server =======================================================
 server.use(express.static(path.join(__dirname, "public")));
 server.use(express.static(path.join(__dirname, "statics")));
+server.use(express.static(path.join(__dirname, "public", "statics")));
+server.use(express.static(path.join(__dirname, "public", "panel")));
 server.use("/", indexRouter);
 
 server.listen(PORT, () => {
