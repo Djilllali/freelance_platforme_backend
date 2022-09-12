@@ -113,7 +113,7 @@ router.post("/createUser", async (req, res) => {
     req.body = value;
   }
   let { email, password, phone, name, domain, pack } = req.body;
-
+  console.log("-------------------req body ", req.body);
   let userWithSameEmail = await User.findOne({ email: email });
   if (userWithSameEmail) {
     return res
@@ -379,7 +379,7 @@ router.post(
   async (req, res) => {
     const schema = Joi.object({
       bio: Joi.string().min(6).max(100),
-      name: Joi.string().min(3).max(20),
+      domain: Joi.string().min(3).max(32),
     });
     const options = {
       abortEarly: true, // include all errors
