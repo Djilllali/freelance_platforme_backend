@@ -296,7 +296,7 @@ router.post(
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
-      let mUser = await User.findById(req.user._id, "name email ");
+      let mUser = await Admin.findById(req.user._id, "name email ");
       if (!mUser) {
         return res
           .status(400)
