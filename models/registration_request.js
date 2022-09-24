@@ -39,6 +39,7 @@ const RegistrationRequestSchema = new Schema({
     required: true,
   },
 });
+RegistrationRequestSchema.set("timestamps", true);
 
 const RegistrationRequest = mongoose.model(
   "RegistrationRequest",

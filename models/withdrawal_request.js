@@ -34,6 +34,7 @@ const WithdrawalSchema = new Schema({
     index: true,
   },
 });
+WithdrawalSchema.set("timestamps", true);
 
 const Withdrawal = mongoose.model("Withdrawal", WithdrawalSchema);
 module.exports = Withdrawal;

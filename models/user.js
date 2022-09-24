@@ -11,6 +11,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  personal_email: {
+    type: String,
+    required: false,
+  },
   verified: {
     type: Boolean,
     required: true,
@@ -65,5 +69,6 @@ UserSchema.pre("save", async function (next) {
   }
   next();
 });
+UserSchema.set("timestamps", true);
 const User = mongoose.model("User", UserSchema);
 module.exports = User;

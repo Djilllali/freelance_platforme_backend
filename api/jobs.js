@@ -248,18 +248,28 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     const _id = req.body._id;
+    let jobExists = await Job.findOne({
+      assignedTo: req.user._id,
+      status: { $ne: "approved" },
+    });
 
-    let updated = await Job.findOneAndUpdate(
-      { _id: req.body._id, status: "virgin" },
-      { assignedTo: req.user._id, status: "inprogress" }
-    );
-
-    if (!updated) {
+    if (jobExists) {
       return res
         .status(400)
-        .json({ status: "false", message: "Error updating job" });
+        .json({ status: "false", message: "cannot take more than one job" });
     } else {
-      res.json({ status: "true", message: "job updated successfully" });
+      let updated = await Job.findOneAndUpdate(
+        { _id: req.body._id, status: "virgin" },
+        { assignedTo: req.user._id, status: "inprogress" }
+      );
+
+      if (!updated) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Error updating job" });
+      } else {
+        res.json({ status: "true", message: "job updated successfully" });
+      }
     }
   }
 );

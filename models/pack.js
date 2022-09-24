@@ -6,6 +6,7 @@ const PackSchema = new Schema({
   name: { type: String, required: true },
   price: { type: mongoose.Schema.Types.Number, required: true },
 });
+PackSchema.set("timestamps", true);
 
 const Pack = mongoose.model("Pack", PackSchema);
 module.exports = Pack;

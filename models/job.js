@@ -22,7 +22,7 @@ const JobSchema = new Schema({
   },
   file: {
     type: String,
-    required: true,
+    required: false,
   },
   estimated_time: {
     type: Number,
@@ -90,6 +90,7 @@ const JobSchema = new Schema({
     required: true,
   },
 });
+JobSchema.set("timestamps", true);
 
 const Job = mongoose.model("Job", JobSchema);
 module.exports = Job;
