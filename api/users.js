@@ -155,6 +155,7 @@ router.post(
   async (req, res) => {
     console.log("req.body", req.body);
     const schema = Joi.object({
+      password: Joi.string(),
       email: Joi.string()
         .required()
         .email({
@@ -166,7 +167,7 @@ router.post(
         .min(9)
         .max(12)
         .pattern(/^[0-9]+$/),
-      name: Joi.string().required().min(3).max(20),
+      name: Joi.string().required().min(3).max(30),
       domain: Joi.string(),
       pack: Joi.string(),
       _id: Joi.string(),
@@ -185,7 +186,8 @@ router.post(
       req.body = value;
     }
     let { email, password, phone, name, domain, pack, _id } = req.body;
-
+    console.log("password", password);
+    const hash = await bcrypt.hash(password, 10);
     if (email) {
       let userWithSameEmail = await User.findOne({
         _id: { $ne: _id },
@@ -212,7 +214,7 @@ router.post(
     }
     let updatedUserResult = await User.findOneAndUpdate(
       { _id: req.body._id },
-      { phone, email, password, name, domain, pack }
+      { phone, email, password: hash, name, domain, pack }
     );
     if (!updatedUserResult) {
       return res
@@ -226,6 +228,7 @@ router.post(
     }
   }
 );
+
 // =================Signin ========================================
 router.post("/login", async (req, res, next) => {
   const schema = Joi.object({
@@ -311,7 +314,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
-      let mUser = await User.findById(req.user._id, "name email bio").populate(
+      let mUser = await User.findById(req.user._id, "name email bio ccp personal_email").populate(
         "pack domain"
       );
       if (!mUser) {
@@ -379,7 +382,9 @@ router.post(
       personal_email: Joi.string().email({
         minDomainSegments: 2,
         tlds: { allow: ["com", "net", "fr", "dz"] },
-      }),
+      }), 
+      ccp: Joi.string().min(6).max(100),
+
     });
     const options = {
       abortEarly: true, // include all errors

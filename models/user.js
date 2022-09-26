@@ -15,6 +15,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  ccp: {
+    type: String,
+    required: false,
+  },
   verified: {
     type: Boolean,
     required: true,
