@@ -11,6 +11,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  personal_email: {
+    type: String,
+    required: false,
+  },
+  ccp: {
+    type: String,
+    required: false,
+  },
   verified: {
     type: Boolean,
     required: true,
@@ -27,12 +35,20 @@ const UserSchema = new mongoose.Schema({
   },
   bio: {
     type: String,
-    required: true,
+    required: false,
     default: "",
   },
   googleId: {
     type: String,
     required: false,
+  },
+  domain: {
+    ref: "Domain",
+    type: mongoose.Schema.Types.ObjectId,
+  },
+  pack: {
+    ref: "Pack",
+    type: mongoose.Schema.Types.ObjectId,
   },
 });
 UserSchema.methods.comparePassword = async function (
@@ -57,5 +73,6 @@ UserSchema.pre("save", async function (next) {
   }
   next();
 });
+UserSchema.set("timestamps", true);
 const User = mongoose.model("User", UserSchema);
 module.exports = User;

@@ -3,21 +3,26 @@ const bcrypt = require("bcrypt");
 const Schema = mongoose.Schema;
 
 const JobSchema = new Schema({
-  owner: {
-    type: Schema.Types.ObjectId,
-    required: true,
-  },
   creator: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Admin",
   },
   assignedTo: {
     type: Schema.Types.ObjectId,
     ref: "User",
+    default: null,
   },
   description: {
     type: String,
     required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  file: {
+    type: String,
+    required: false,
   },
   estimated_time: {
     type: Number,
@@ -37,14 +42,22 @@ const JobSchema = new Schema({
   skills: [
     {
       type: String,
-      required: true,
+      required: false,
     },
   ],
   domain: {
     type: Schema.Types.ObjectId,
-    ref: "domain",
+    ref: "Domain",
     required: true,
   },
+  subdomain: {
+    type: Schema.Types.ObjectId,
+    ref: "Domain.subdomains",
+    required: false,
+  },
+
+  submission: { message: String, file: String, time: Date },
+
   thread: [
     {
       sender: {
@@ -77,6 +90,7 @@ const JobSchema = new Schema({
     required: true,
   },
 });
+JobSchema.set("timestamps", true);
 
 const Job = mongoose.model("Job", JobSchema);
 module.exports = Job;

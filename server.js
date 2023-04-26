@@ -15,7 +15,7 @@ const server = express();
 require("./controllers/passport");
 const helmet = require("helmet");
 const { downloadFile } = require("./controllers/upload");
-const morgan = require('morgan')
+const morgan = require("morgan");
 
 // =====================  MiidleWares===================================================
 server.use(helmet());
@@ -30,15 +30,19 @@ server.use(
     saveUninitialized: true,
   })
 );
-server.use(cors({origin : "*"}));
+server.use(cors({ origin: "*" }));
 server.use(passport.initialize());
 server.use(passport.session());
 
 // ================== Routes ===========================================================
-server.use(morgan('tiny'))
+server.use(morgan("tiny"));
 server.use("/users", require("./api/users"));
 server.use("/admins", require("./api/admins"));
 server.use("/jobs", require("./api/jobs"));
+server.use("/packs", require("./api/packs"));
+server.use("/register", require("./api/registration"));
+server.use("/domains", require("./api/domains"));
+
 server.use("/s3", require("./api/uploadFile"));
 server.get(
   "/auth/google",
@@ -47,8 +51,8 @@ server.get(
 server.get("/files/:key", (req, res) => {
   console.log(req.params);
   const key = req.params.key;
+  res.setHeader("Content-Type", "application/zip");
   const readStream = downloadFile(key);
-
   readStream.pipe(res);
 });
 server.get(
@@ -61,6 +65,9 @@ server.get(
 
 // ================== Launch Server =======================================================
 server.use(express.static(path.join(__dirname, "public")));
+server.use(express.static(path.join(__dirname, "statics")));
+server.use(express.static(path.join(__dirname, "public", "statics")));
+server.use(express.static(path.join(__dirname, "public", "panel")));
 server.use("/", indexRouter);
 
 server.listen(PORT, () => {
@@ -70,6 +77,7 @@ server.listen(PORT, () => {
 // ================== Connect Mongo Database ===============================================
 
 function connectDatabase() {
+  console.log("------------------- mongoURI", MONGO_URI);
   mongoose
     .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {

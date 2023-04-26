@@ -42,7 +42,24 @@ const upload = multer({
 
   fileFilter: (req, file, cb) => {
     console.log("error5");
-    if (file.mimetype === "application/zip") {
+    if (
+      file.mimetype === "application/zip" ||
+      file.mimetype === "application/octet-stream" ||
+      file.mimetype === "application/x-zip-compressed" ||
+      file.mimetype === "multipart/x-zip" ||
+      file.mimetype === "application/vnd.rar" ||
+      file.mimetype === "application/x-rar-compressed" ||
+      file.mimetype === "application/octet-stream" ||
+      file.mimetype === "text/csv" ||
+      file.mimetype === "application/msword" ||
+      file.mimetype ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      file.mimetype === "application/pdf" ||
+      file.mimetype === "application/vnd.ms-powerpoint" ||
+      file.mimetype ===
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+      file.mimetype === "application/x-7z-compressed"
+    ) {
       cb(null, true);
     } else {
       cb(null, false);
@@ -53,10 +70,11 @@ const upload = multer({
   },
 });
 
+router.post("/upload", upload.single("upload"), UploadController.Generalupload);
 router.post(
-  "/upload",
+  "/submit_project",
   upload.single("upload"),
-  UploadController.Generalupload
+  UploadController.submitProject
 );
 
 module.exports = router;

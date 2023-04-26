@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 
 const WithdrawalSchema = new Schema({
   user_id: {
-    type: String,
+    type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
@@ -29,11 +29,12 @@ const WithdrawalSchema = new Schema({
   payment_method: {
     type: String,
     enum: ["cash", "ccp", "visa"],
-    default: "verifiying",
+    default: "cash",
     required: true,
     index: true,
   },
 });
+WithdrawalSchema.set("timestamps", true);
 
 const Withdrawal = mongoose.model("Withdrawal", WithdrawalSchema);
 module.exports = Withdrawal;

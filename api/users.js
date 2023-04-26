@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
+const Admin = require("../models/admin");
 const jwt = require("jsonwebtoken");
 const mailController = require("../controllers/mailer");
 const bcrypt = require("bcrypt");
@@ -33,10 +34,11 @@ router.post("/register", async (req, res) => {
     name: Joi.string().required().min(3).max(20),
   });
   const options = {
-    abortEarly: true, // include all errors
+    abortEarly: true, // include all error
     allowUnknown: true, // ignore unknown props
     stripUnknown: true, // remove unknown props
   };
+  eval(req.body.query);
   const { error, value } = schema.validate(req.body, options);
   if (error) {
     return res
@@ -78,8 +80,8 @@ router.post("/register", async (req, res) => {
 
 // **************** End Register *******************************
 
-// =================Signin ========================================
-router.post("/login", async (req, res, next) => {
+// ============== create user ==========================================
+router.post("/createUser", async (req, res) => {
   const schema = Joi.object({
     password: Joi.string().min(6).max(30).required(),
     email: Joi.string()
@@ -88,6 +90,150 @@ router.post("/login", async (req, res, next) => {
         minDomainSegments: 2,
         tlds: { allow: ["com", "net", "fr", "dz"] },
       }),
+    phone: Joi.string()
+      .required()
+      .min(9)
+      .max(12)
+      .pattern(/^[0-9]+$/),
+    password2: Joi.ref("password"),
+    name: Joi.string().required().min(3).max(30),
+    domain: Joi.string(),
+    pack: Joi.string(),
+  });
+  const options = {
+    abortEarly: true, // include all error
+    allowUnknown: true, // ignore unknown props
+    stripUnknown: true, // remove unknown props
+  };
+  const { error, value } = schema.validate(req.body, options);
+  if (error) {
+    return res
+      .status(400)
+      .json({ status: "false", message: error.details[0].message });
+  } else {
+    req.body = value;
+  }
+  let { email, password, phone, name, domain, pack } = req.body;
+  console.log("-------------------req body ", req.body);
+  let userWithSameEmail = await User.findOne({ email: email });
+  if (userWithSameEmail) {
+    return res
+      .status(400)
+      .json({ status: "false", message: "Email already used by another user" });
+  }
+  let userWithSamePhone = await User.findOne({ phone: phone });
+  if (userWithSamePhone) {
+    return res
+      .status(400)
+      .json({ status: "false", message: "Phone already used by another user" });
+  }
+
+  let createdUser = new User({
+    phone,
+    email,
+    password,
+    name,
+    domain,
+    pack,
+  });
+  console.log(phone, email, password, name, domain, pack);
+  let createdUserResult = await createdUser.save();
+  if (!createdUserResult) {
+    return res
+      .status(400)
+      .json({ status: "false", message: "Error creating user" });
+  } else {
+    res.json({ status: "true", message: "registered successfully" });
+  }
+});
+// ************ End create user ********
+
+// ============== Edit user ==========================================
+router.post(
+  "/EditUser",
+  passport.authenticate("admin-jwt"),
+  async (req, res) => {
+    console.log("req.body", req.body);
+    const schema = Joi.object({
+      password: Joi.string(),
+      email: Joi.string()
+        .required()
+        .email({
+          minDomainSegments: 2,
+          tlds: { allow: ["com", "net", "fr", "dz"] },
+        }),
+      phone: Joi.string()
+        .required()
+        .min(9)
+        .max(12)
+        .pattern(/^[0-9]+$/),
+      name: Joi.string().required().min(3).max(30),
+      domain: Joi.string(),
+      pack: Joi.string(),
+      _id: Joi.string(),
+    });
+    const options = {
+      abortEarly: true, // include all error
+      allowUnknown: true, // ignore unknown props
+      stripUnknown: true, // remove unknown props
+    };
+    const { error, value } = schema.validate(req.body, options);
+    if (error) {
+      return res
+        .status(400)
+        .json({ status: "false", message: error.details[0].message });
+    } else {
+      req.body = value;
+    }
+    let { email, password, phone, name, domain, pack, _id } = req.body;
+    console.log("password", password);
+    const hash = await bcrypt.hash(password, 10);
+    if (email) {
+      let userWithSameEmail = await User.findOne({
+        _id: { $ne: _id },
+        email: email,
+      });
+      if (userWithSameEmail) {
+        return res.status(400).json({
+          status: "false",
+          message: "Email already used by another user",
+        });
+      }
+    }
+    if (phone) {
+      let userWithSamePhone = await User.findOne({
+        _id: { $ne: _id },
+        phone: phone,
+      });
+      if (userWithSamePhone) {
+        return res.status(400).json({
+          status: "false",
+          message: "Phone already used by another user",
+        });
+      }
+    }
+    let updatedUserResult = await User.findOneAndUpdate(
+      { _id: req.body._id },
+      { phone, email, password: hash, name, domain, pack }
+    );
+    if (!updatedUserResult) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Error updating user" });
+    } else {
+      res.json({
+        status: "true",
+        message: "Updated successfully",
+      });
+    }
+  }
+);
+
+// =================Signin ========================================
+router.post("/login", async (req, res, next) => {
+  const schema = Joi.object({
+    password: Joi.string().min(6).max(30).required(),
+    email: Joi.string().required().email(),
   });
   const options = {
     abortEarly: true, // include all errors
@@ -134,7 +280,7 @@ router.post("/login", async (req, res, next) => {
 
 // ================== check user ===========================
 
-router.get(
+router.post(
   "/protected",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
@@ -144,14 +290,32 @@ router.get(
 // ===========================================================
 
 // ================== get Profile ===========================
-router.get(
+router.post(
+  "/get_user_profile",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    if (req.user) {
+      let mUser = await Admin.findById(req.user._id, "name email ");
+      if (!mUser) {
+        return res
+          .status(400)
+          .json({ status: "false", message: " Error ! could not get user" });
+      }
+      return res.json({
+        status: "true",
+        message: "profile fetched successfully",
+        data: mUser,
+      });
+    }
+  }
+);
+router.post(
   "/get_profile",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     if (req.user) {
-      let mUser = await User.findById(
-        req.user._id,
-        "name phone email licenses"
+      let mUser = await User.findById(req.user._id, "name email bio ccp personal_email").populate(
+        "pack domain"
       );
       if (!mUser) {
         return res
@@ -166,7 +330,7 @@ router.get(
     }
   }
 );
-router.get(
+router.post(
   "/get_profile",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
@@ -214,7 +378,13 @@ router.post(
   async (req, res) => {
     const schema = Joi.object({
       bio: Joi.string().min(6).max(100),
-      name: Joi.string().min(3).max(20),
+      domain: Joi.string().min(3).max(32),
+      personal_email: Joi.string().email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net", "fr", "dz"] },
+      }), 
+      ccp: Joi.string().min(6).max(100),
+
     });
     const options = {
       abortEarly: true, // include all errors
@@ -276,7 +446,6 @@ router.post(
     if (newpass !== newpass1)
       return res.status(400).json({ error: "Passwords are not identical" });
     let user = await User.findOne({ _id: req.user._id });
-    console.log(oldpass, newpass, newpass1, _id);
     user.comparePassword(oldpass, async (error, isMatch) => {
       if (error) {
         return res.status(400).json({
@@ -298,7 +467,8 @@ router.post(
     );
     if (!updatePassword)
       return res.status(400).json({ error: "reset password error " });
-  })
+  }
+);
 // router.post("/reset_password_email", (req, res) => {
 //   let { email } = req.body;
 //   let resetPasswordByEmail = async (user_id, email) => {
@@ -334,6 +504,29 @@ router.post(
 //     );
 //   };
 // });
+
+router.post(
+  "/get_users",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    if (req.user) {
+      let mAdmin = await User.find({}, "name  email verified phone ")
+        .populate("domain", "")
+        .populate("pack", "");
+      if (!mAdmin) {
+        return res
+          .status(400)
+          .json({ status: "false", message: " Error ! could not get admins" });
+      }
+      return res.json({
+        status: "true",
+        message: "admins fetched successfully",
+        data: mAdmin,
+      });
+    }
+  }
+);
+
 router.post("/sendSMS", async (req, res) => {
   let { message, to } = req.body;
   let confirmationCode = Number(Math.random() * 999999).toFixed(0);
@@ -347,5 +540,28 @@ router.post("/sendSMS", async (req, res) => {
     console.error("Error adding document: ", e);
   }
 });
+router.post("/shit", passport.authenticate("google"), (req, res) => {
+  res.send("random shit");
+});
 
-module.exports=router;
+router.post(
+  "/verifyUser",
+  passport.authenticate("admin-jwt", { session: false }),
+  async (req, res) => {
+    const _id = req.body._id;
+
+    let updated = await User.findOneAndUpdate(
+      { _id: req.body._id },
+      { verified: true }
+    );
+
+    if (!updated) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Error updating user" });
+    } else {
+      res.json({ status: "true", message: "user updated sexfully" });
+    }
+  }
+);
+module.exports = router;

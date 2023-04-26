@@ -150,7 +150,7 @@ router.post(
     }
   }
 );
-router.post(
+router.get(
   "/get_admins",
   passport.authenticate("admin-jwt", { session: false }),
   async (req, res) => {
@@ -212,7 +212,7 @@ router.post(
   }
 );
 
-router.get(
+router.post(
   "/protected",
   passport.authenticate("admin-jwt", { session: false }),
   (req, res) => {
