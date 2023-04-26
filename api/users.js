@@ -198,6 +198,16 @@ router.post("/sendMail", async (req, res) => {
 
   res.send("sent succesfully");
 });
+router.post("/contact", async (req, res) => {
+  mailController.sendMail(
+    "Turing LTD",
+    process.env.EMAIL_ADDR1,
+    "TURING NEWSLETTER",
+    "this is the visitors message from the website weeeeeew "
+  );
+
+  res.send("sent succesfully");
+});
 router.post(
   "/edit_profile",
   passport.authenticate("jwt", { session: false }),
@@ -288,7 +298,7 @@ router.post(
     );
     if (!updatePassword)
       return res.status(400).json({ error: "reset password error " });
-
+  })
 // router.post("/reset_password_email", (req, res) => {
 //   let { email } = req.body;
 //   let resetPasswordByEmail = async (user_id, email) => {
@@ -338,4 +348,4 @@ router.post("/sendSMS", async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports=router;
