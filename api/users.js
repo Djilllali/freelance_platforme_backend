@@ -8,7 +8,8 @@ const mailController = require("../controllers/mailer");
 const bcrypt = require("bcrypt");
 // const VerificationDocument = require("../models/verificationDocument");
 const ResetPasswordRequest = require("../models/password_reset_request");
-const { collection, addDoc } = require("firebase/firestore");
+const { collection, addDoc } = require("firebase/firestore"); 
+//test
 const { db } = require("../controllers/firebase");
 
 const passport = require("passport");
