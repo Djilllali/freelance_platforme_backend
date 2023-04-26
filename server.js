@@ -13,7 +13,10 @@ var path = require("path");
 const indexRouter = require("./router");
 const server = express();
 require("./controllers/passport");
+const helmet = require("helmet");
+
 // =====================  MiidleWares===================================================
+server.use(helmet());
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 // =========Passport Auth=======
@@ -32,6 +35,7 @@ server.use(passport.session());
 // ================== Routes ===========================================================
 
 server.use("/users", require("./api/users"));
+server.use("/admins", require("./api/admins"));
 // ================== Launch Server =======================================================
 server.use(express.static(path.join(__dirname, "public")));
 server.use("/", indexRouter);
